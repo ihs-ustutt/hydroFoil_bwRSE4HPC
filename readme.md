@@ -1,7 +1,7 @@
-### Exemplary optimization framework for optimizing the hydroFoil case 
+## Exemplary optimization framework for optimizing the hydroFoil case 
 
 
-## How to run the optimization 
+### How to run the optimization 
 
 0. add your python environment to "de" file 
 
@@ -12,7 +12,7 @@
 (3.) observe optimization progress with "tail -f de_opt.log"
 
 
-## Necessary python packages: 
+### Necessary python packages: 
 
 (pip install...)
 - numpy (version: 2.1.2!!)
@@ -24,7 +24,7 @@
 (for further information see requirements.txt)
 
 
-## How to adapt to new optimization problems: ###
+### How to adapt to new optimization problems:
 
 1. define new optimization problem and implement function def run_problem(...):
 

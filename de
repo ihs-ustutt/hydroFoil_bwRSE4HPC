@@ -1,0 +1,28 @@
+#!/bin/bash
+
+for i in cae/openfoam/v2412 devel/python/3.11.7-gnu-14.2 
+do
+  module load $i
+done
+
+#foamInit
+source $FOAM_INIT
+
+export DTOO_EXTERNLIBS=~/dtOO/install
+export FOAMFINE_DIR=~/foamFine
+
+export PYTHONPATH=~/dtOO/install/tools:$PYTHONPATH
+export PYTHONPATH=~/dtOO/install/scripts/python:$PYTHONPATH
+export LD_LIBRARY_PATH=~/dtOO/install/lib:$LD_LIBRARY_PATH
+export LD_LIBRARY_PATH=~/dtOO/install/lib64:$LD_LIBRARY_PATH
+
+source ~/your_environment/bin/activate #insert your python environment here
+
+export FOAM_SIGFPE=false
+export OSLO_LOCK_PATH=~/tmp_de
+
+export PYRO_HOST=`hostname`
+export PYRO_NS_HOST=`hostname`
+export PYRO_NS_PORT=9041
+export PYRO_NS_BCPORT=9051
+
