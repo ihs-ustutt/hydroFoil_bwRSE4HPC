@@ -1,0 +1,39 @@
+[build-system]
+requires = ["hatchling>=1.25"]
+build-backend = "hatchling.build"
+
+[project]
+name = "flow-opt-hydrofoil"
+version = "0.1.0"
+description = "Pyro-free hydrofoil case plugin for flow-opt"
+readme = "README.md"
+authors = [
+  {name = "Simon Eyeselein", email = "simon.eyselein@ihs.uni-stuttgart.de"},
+  {name = "Thomas Isensee", email = "thomas.isensee@iwr.uni-heidelberg.de"},
+]
+requires-python = ">=3.11,<3.14"
+dependencies = ["flow-opt>=0.0.1", "numpy"]
+
+[project.entry-points."flow_opt.cases"]
+hydrofoil = "flow_opt_hydrofoil.case:HydrofoilCase"
+
+[project.scripts]
+flow-opt-hydrofoil-worker = "flow_opt_hydrofoil.worker:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/flow_opt_hydrofoil"]
+
+[tool.hatch.build.targets.wheel.force-include]
+"hydroFoil.py" = "flow_opt_hydrofoil/_legacy/hydroFoil.py"
+"utils.py" = "flow_opt_hydrofoil/_legacy/utils.py"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 79
+target-version = "py311"
+exclude = ["hydroFoil.py", "utils.py"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I"]
