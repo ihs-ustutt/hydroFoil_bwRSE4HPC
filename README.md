@@ -22,6 +22,9 @@ flow-opt-hydrofoil check-runtime
 This prints a compact checklist for the dtOO Python bindings, OpenFOAM tools,
 MPI launcher, and relevant environment variables. It does not run a CFD case.
 
+For the current bwUniCluster build recipe, see
+[`docs/runtime-bwunicluster.md`](docs/runtime-bwunicluster.md).
+
 ## Example
 
 Install the orchestration package and this plugin in the same environment.
