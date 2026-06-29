@@ -18,6 +18,7 @@ dependencies = ["flow-opt>=0.0.1", "numpy"]
 hydrofoil = "flow_opt_hydrofoil.case:HydrofoilCase"
 
 [project.scripts]
+flow-opt-hydrofoil = "flow_opt_hydrofoil.cli:main"
 flow-opt-hydrofoil-worker = "flow_opt_hydrofoil.worker:main"
 
 [tool.hatch.build.targets.wheel]

@@ -23,7 +23,8 @@ def main(argv: list[str] | None = None) -> int:
 
         objective, metadata = evaluate(request)
         result = _success(request, objective, metadata, started)
-    except Exception as exc:  # noqa: BLE001 - worker is the isolation boundary.
+    # The worker process is the isolation boundary for CFD runtime failures.
+    except Exception as exc:  # noqa: BLE001
         result = _failure(request, str(exc), started)
     result_path.write_text(json.dumps(result), encoding="utf-8")
     return 0

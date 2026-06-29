@@ -13,6 +13,15 @@ with dtOO, foamlib, OpenFOAM, and an MPI launcher. Set up those tools as usual
 before invoking `flow-opt`; this package deliberately does not load them until
 its worker executes a candidate.
 
+Check the currently active shell before running a real case:
+
+```bash
+flow-opt-hydrofoil check-runtime
+```
+
+This prints a compact checklist for the dtOO Python bindings, OpenFOAM tools,
+MPI launcher, and relevant environment variables. It does not run a CFD case.
+
 ## Example
 
 Install the orchestration package and this plugin in the same environment.
