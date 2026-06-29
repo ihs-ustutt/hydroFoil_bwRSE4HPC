@@ -12,7 +12,12 @@ authors = [
   {name = "Thomas Isensee", email = "thomas.isensee@iwr.uni-heidelberg.de"},
 ]
 requires-python = ">=3.11,<3.14"
-dependencies = ["flow-opt>=0.0.1", "numpy"]
+dependencies = ["flow-opt", "numpy"]
+
+[project.optional-dependencies]
+  runtime = [
+    "foamlib",
+  ]
 
 [project.entry-points."flow_opt.cases"]
 hydrofoil = "flow_opt_hydrofoil.case:HydrofoilCase"
