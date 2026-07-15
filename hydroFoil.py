@@ -1196,8 +1196,12 @@ class hydFoil:
     # Integrate pressure and velocity over inlet and outlet; calculate the
     # sum of those energies to get the difference in head
     #
-    e_i = (p_i.IntValueQ() / g + U_i.IntMagSquareQ() / 2.0 / g)
-    e_o = (p_o.IntValueQ() / g + U_o.IntMagSquareQ() / 2.0 / g)
+    e_i = np.asarray(
+      p_i.IntValueQ() / g + U_i.IntMagSquareQ() / 2.0 / g
+    ).item()
+    e_o = np.asarray(
+      p_o.IntValueQ() / g + U_o.IntMagSquareQ() / 2.0 / g
+    ).item()
     Q_i = np.abs(U_i.IntQ())
     dHMean = (e_i + e_o) / Q_i
 
