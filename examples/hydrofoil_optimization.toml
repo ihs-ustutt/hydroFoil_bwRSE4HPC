@@ -1,6 +1,6 @@
 [run]
-directory = "runs/hydrofoil"
-scratch_directory = "runs/hydrofoil/scratch"
+directory = "runs/hydrofoil_optimization"
+scratch_directory = "runs/hydrofoil_optimization/scratch"
 
 [case]
 name = "hydrofoil"

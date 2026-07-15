@@ -28,12 +28,20 @@ For the current bwUniCluster build recipe, see
 ## Example
 
 Install the orchestration package and this plugin in the same environment.
-Then run either explicit candidates or the pygmo island optimizer:
+Then run either explicit candidates or the pygmo island optimizer via
 
 ```bash
-flow-opt check examples/hydrofoil.toml
-flow-opt optimize examples/hydrofoil.toml
+flow-opt check examples/hydrofoil_candidate.toml
+flow-opt run examples/hydrofoil_candidate.toml
 ```
+
+or
+
+```bash
+flow-opt check examples/hydrofoil_optimization.toml
+flow-opt optimize examples/hydrofoil_optimization.toml
+```
+respectively.
 
 The resource shape is explicit. For example, four two-rank CFD evaluations
 need at least eight CPUs:
