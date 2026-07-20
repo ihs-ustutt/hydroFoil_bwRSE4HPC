@@ -31,7 +31,6 @@ def run_checks() -> list[CheckResult]:
         _check_import("dtOOPythonSWIG"),
         _check_import("pyDtOO"),
         _check_import("dtOOPythonApp.builder"),
-        _check_import("foamlib"),
         _check_import("hydroflow_opt"),
         _check_import("hydrofoil_opt"),
         _check_executable("simpleFoam"),

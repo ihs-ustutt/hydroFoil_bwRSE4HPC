@@ -12,11 +12,12 @@ authors = [
   {name = "Thomas Isensee", email = "thomas.isensee@iwr.uni-heidelberg.de"},
 ]
 requires-python = ">=3.11,<3.14"
-dependencies = ["hydroflow-opt", "numpy"]
-
-[project.optional-dependencies]
-  runtime = [
-    "foamlib",
+dependencies = [
+  "foamlib",
+  "hydroflow-opt",
+  "numpy",
+  "oslo.concurrency",
+  "scikit-learn"
   ]
 
 [project.entry-points."hydroflow_opt.cases"]
