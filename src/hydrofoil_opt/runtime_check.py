@@ -4,7 +4,7 @@ from dataclasses import dataclass
 from importlib import import_module
 from shutil import which
 
-from flow_opt_hydrofoil.runtime import _implementation_path
+from hydrofoil_opt.runtime import _implementation_path
 
 
 @dataclass(frozen=True)
@@ -32,8 +32,8 @@ def run_checks() -> list[CheckResult]:
         _check_import("pyDtOO"),
         _check_import("dtOOPythonApp.builder"),
         _check_import("foamlib"),
-        _check_import("flow_opt"),
-        _check_import("flow_opt_hydrofoil"),
+        _check_import("hydroflow_opt"),
+        _check_import("hydrofoil_opt"),
         _check_executable("simpleFoam"),
         _check_executable("mpiexec"),
         _check_implementation(),
@@ -68,7 +68,7 @@ def format_report(
         Multi-line report suitable for printing to stdout.
     """
 
-    lines = ["flow-opt-hydrofoil runtime check", ""]
+    lines = ["hydrofoil-opt runtime check", ""]
     for result in results:
         status = "OK  " if result.passed else "FAIL"
         detail = f": {result.detail}" if result.detail else ""

@@ -20,7 +20,7 @@ def evaluate(request: dict[str, Any]) -> tuple[float, dict[str, Any]]:
 
     The legacy implementation is loaded only here while its geometry and CFD
     implementation is being split further.  It contains no Pyro dependency;
-    the process boundary and all scheduling now belong to flow-opt.
+    the process boundary and all scheduling now belong to hydroflow-opt .
     """
 
     scratch_dir = Path(request["context"]["scratch_dir"])

@@ -1,4 +1,4 @@
-"""Case declaration consumed by flow-opt without importing CFD dependencies."""
+"""Case declaration for hydroflow-opt without importing CFD dependencies."""
 
 from __future__ import annotations
 
@@ -6,7 +6,7 @@ import sys
 from pathlib import Path
 from typing import Any
 
-from flow_opt.models import ParameterSpace
+from hydroflow_opt.models import ParameterSpace
 
 
 class HydrofoilCase:

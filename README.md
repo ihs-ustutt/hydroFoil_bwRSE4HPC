@@ -1,8 +1,8 @@
 # flow-opt-hydrofoil
 
 `flow-opt-hydrofoil` is the hydrofoil case plugin for
-[`flow-opt`](../flow-opt). It has no Pyro5 dependency and does not implement
-its own scheduler or worker pool. `flow-opt` starts an isolated worker for
+[`hydroflow-opt`](../hydroflow-opt). It has no Pyro5 dependency and does not implement
+its own scheduler or worker pool. `hydroflow-opt` starts an isolated worker for
 each candidate and owns the global resource budget.
 
 ## Runtime prerequisites
@@ -10,7 +10,7 @@ each candidate and owns the global resource budget.
 The package can be installed and unit-tested without CFD software. Running a
 real hydrofoil evaluation requires a separately provisioned Linux environment
 with dtOO, foamlib, OpenFOAM, and an MPI launcher. Set up those tools as usual
-before invoking `flow-opt`; this package deliberately does not load them until
+before invoking `hydroflow-opt`; this package deliberately does not load them until
 its worker executes a candidate.
 
 Check the currently active shell before running a real case:
@@ -31,15 +31,15 @@ Install the orchestration package and this plugin in the same environment.
 Then run either explicit candidates or the pygmo island optimizer via
 
 ```bash
-flow-opt check examples/hydrofoil_candidate.toml
-flow-opt run examples/hydrofoil_candidate.toml
+hydroflow-opt check examples/hydrofoil_candidate.toml
+hydroflow-opt run examples/hydrofoil_candidate.toml
 ```
 
 or
 
 ```bash
-flow-opt check examples/hydrofoil_optimization.toml
-flow-opt optimize examples/hydrofoil_optimization.toml
+hydroflow-opt check examples/hydrofoil_optimization.toml
+hydroflow-opt optimize examples/hydrofoil_optimization.toml
 ```
 respectively.
 

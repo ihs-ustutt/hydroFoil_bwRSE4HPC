@@ -5,14 +5,14 @@ build-backend = "hatchling.build"
 [project]
 name = "flow-opt-hydrofoil"
 version = "0.1.0"
-description = "Pyro-free hydrofoil case plugin for flow-opt"
+description = "Pyro-free hydrofoil case plugin for hydroflow-opt"
 readme = "README.md"
 authors = [
   {name = "Simon Eyeselein", email = "simon.eyselein@ihs.uni-stuttgart.de"},
   {name = "Thomas Isensee", email = "thomas.isensee@iwr.uni-heidelberg.de"},
 ]
 requires-python = ">=3.11,<3.14"
-dependencies = ["flow-opt", "numpy"]
+dependencies = ["hydroflow-opt", "numpy"]
 
 [project.optional-dependencies]
   runtime = [

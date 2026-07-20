@@ -1,7 +1,7 @@
 # bwUniCluster dtOO Runtime Setup
 
 This document records the current cluster-specific setup for running the
-hydrofoil case with `flow-opt`. It is based on the dtOO [author's build recipe](https://github.com/ihs-ustutt/dtOO/issues/67).
+hydrofoil case with `hydroflow-opt `. It is based on the dtOO [author's build recipe](https://github.com/ihs-ustutt/dtOO/issues/67).
 The result is expected to be:
 
 - dtOO and third-party libraries installed in `~/dtOO-install`
@@ -26,10 +26,10 @@ python -m pip install \
   scikit-learn
 ```
 
-Install `flow-opt` and the hydrofoil plugin from source:
+Install `hydroflow-opt ` and the hydrofoil plugin from source:
 
 ```bash
-python -m pip install -e ~/path/to/flow-opt
+python -m pip install -e ~/path/to/hydroflow-opt
 python -m pip install -e "~/path/to/hydroFoil_bwRSE4HPC[runtime]"
 ```
 
@@ -163,23 +163,23 @@ command -v mpiexec
 Finally run the hydrofoil plugin runtime check:
 
 ```bash
-flow-opt-hydrofoil check-runtime
+hydroflow-opt -hydrofoil check-runtime
 ```
 
 Only after this passes should a real hydrofoil run be attempted:
 
 ```bash
-flow-opt check examples/hydrofoil.toml
-flow-opt optimize examples/hydrofoil.toml
+hydroflow-opt  check examples/hydrofoil.toml
+hydroflow-opt  optimize examples/hydrofoil.toml
 ```
 
 ## Notes
 
 - The current setup is tied to the loaded Python module. If dtOO is built with
-  Python 3.13, run `flow-opt` with the same Python environment.
+  Python 3.13, run `hydroflow-opt ` with the same Python environment.
 - `LD_LIBRARY_PATH` and `PYTHONPATH` are part of the runtime contract. Missing
   paths usually show up as import errors for `dtOOPythonSWIG` or OpenCASCADE
   libraries.
 - The Docker image `atismer/dtoo-opensuse:stable` is not equivalent to this
   setup. It currently exposes older Python versions and should not be assumed
-  to run this `flow-opt` workflow.
+  to run this `hydroflow-opt ` workflow.
