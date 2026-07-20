@@ -1,10 +1,10 @@
 import json
 
-import flow_opt_hydrofoil.runtime_check as runtime_check
-from flow_opt_hydrofoil.case import HydrofoilCase
-from flow_opt_hydrofoil.cli import main as cli_main
-from flow_opt_hydrofoil.runtime_check import CheckResult
-from flow_opt_hydrofoil.worker import main
+import hydrofoil_opt.runtime_check as runtime_check
+from hydrofoil_opt.case import HydrofoilCase
+from hydrofoil_opt.cli import main as cli_main
+from hydrofoil_opt.runtime_check import CheckResult
+from hydrofoil_opt.worker import main
 
 
 def test_case_exposes_the_hydrofoil_parameter_space():
@@ -95,7 +95,7 @@ def test_runtime_check_passes_when_requirements_are_available(
 
 def test_runtime_cli_returns_nonzero_for_failed_checks(monkeypatch):
     monkeypatch.setattr(
-        "flow_opt_hydrofoil.cli.run_checks",
+        "hydrofoil_opt.cli.run_checks",
         lambda: [CheckResult("import dtOOPythonSWIG", False)],
     )
 
@@ -104,7 +104,7 @@ def test_runtime_cli_returns_nonzero_for_failed_checks(monkeypatch):
 
 def test_runtime_cli_returns_zero_for_successful_checks(monkeypatch):
     monkeypatch.setattr(
-        "flow_opt_hydrofoil.cli.run_checks",
+        "hydrofoil_opt.cli.run_checks",
         lambda: [CheckResult("import dtOOPythonSWIG", True)],
     )
 

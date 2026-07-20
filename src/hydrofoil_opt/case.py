@@ -32,7 +32,7 @@ class HydrofoilCase:
         return [
             sys.executable,
             "-m",
-            "flow_opt_hydrofoil.worker",
+            "hydrofoil_opt.worker",
             str(request_path),
             str(result_path),
         ]

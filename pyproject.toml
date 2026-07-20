@@ -3,9 +3,9 @@ requires = ["hatchling>=1.25"]
 build-backend = "hatchling.build"
 
 [project]
-name = "flow-opt-hydrofoil"
+name = "hydrofoil-opt"
 version = "0.1.0"
-description = "Pyro-free hydrofoil case plugin for hydroflow-opt"
+description = "Hydrofoil case plugin for hydroflow-opt"
 readme = "README.md"
 authors = [
   {name = "Simon Eyeselein", email = "simon.eyselein@ihs.uni-stuttgart.de"},
@@ -19,19 +19,19 @@ dependencies = ["hydroflow-opt", "numpy"]
     "foamlib",
   ]
 
-[project.entry-points."flow_opt.cases"]
-hydrofoil = "flow_opt_hydrofoil.case:HydrofoilCase"
+[project.entry-points."hydroflow_opt.cases"]
+hydrofoil = "hydrofoil_opt.case:HydrofoilCase"
 
 [project.scripts]
-flow-opt-hydrofoil = "flow_opt_hydrofoil.cli:main"
-flow-opt-hydrofoil-worker = "flow_opt_hydrofoil.worker:main"
+hydrofoil-opt = "hydrofoil_opt.cli:main"
+hydrofoil-opt-worker = "hydrofoil_opt.worker:main"
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/flow_opt_hydrofoil"]
+packages = ["src/hydrofoil_opt"]
 
 [tool.hatch.build.targets.wheel.force-include]
-"hydroFoil.py" = "flow_opt_hydrofoil/_legacy/hydroFoil.py"
-"utils.py" = "flow_opt_hydrofoil/_legacy/utils.py"
+"hydroFoil.py" = "hydrofoil_opt/_legacy/hydroFoil.py"
+"utils.py" = "hydrofoil_opt/_legacy/utils.py"
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

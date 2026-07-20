@@ -51,7 +51,7 @@ def _load_implementation() -> Any:
     if not source.exists():
         raise RuntimeError(
             "hydrofoil implementation is unavailable; install from the "
-            "flow-opt-hydrofoil source checkout with its CFD runtime"
+            "hydrofoil-opt source checkout with its CFD runtime"
         )
     sys.path.insert(0, str(source.parent))
     spec = importlib.util.spec_from_file_location(
@@ -67,7 +67,7 @@ def _load_implementation() -> Any:
 
 
 def _implementation_path() -> Path:
-    bundled = files("flow_opt_hydrofoil").joinpath("_legacy", "hydroFoil.py")
+    bundled = files("hydrofoil_opt").joinpath("_legacy", "hydroFoil.py")
     if bundled.is_file():
         return Path(bundled)
     return Path(__file__).resolve().parents[2] / "hydroFoil.py"

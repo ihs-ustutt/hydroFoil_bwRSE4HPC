@@ -14,12 +14,12 @@ def main(argv: list[str] | None = None) -> int:
 
     args = argv if argv is not None else sys.argv[1:]
     if len(args) != 2:
-        raise SystemExit("usage: flow-opt-hydrofoil-worker REQUEST RESULT")
+        raise SystemExit("usage: hydrofoil-opt-worker REQUEST RESULT")
     request_path, result_path = (Path(value) for value in args)
     request = json.loads(request_path.read_text(encoding="utf-8"))
     started = time.perf_counter()
     try:
-        from flow_opt_hydrofoil.runtime import evaluate
+        from hydrofoil_opt.runtime import evaluate
 
         objective, metadata = evaluate(request)
         result = _success(request, objective, metadata, started)

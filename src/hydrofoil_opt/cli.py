@@ -3,7 +3,7 @@
 import argparse
 import os
 
-from flow_opt_hydrofoil.runtime_check import (
+from hydrofoil_opt.runtime_check import (
     failed_required_count,
     format_report,
     run_checks,
@@ -13,7 +13,7 @@ from flow_opt_hydrofoil.runtime_check import (
 def main(argv: list[str] | None = None) -> int:
     """Run the hydrofoil plugin command-line interface."""
 
-    parser = argparse.ArgumentParser(prog="flow-opt-hydrofoil")
+    parser = argparse.ArgumentParser(prog="hydrofoil-opt")
     subparsers = parser.add_subparsers(dest="command", required=True)
     subparsers.add_parser("check-runtime")
     args = parser.parse_args(argv)

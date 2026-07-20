@@ -1,4 +1,4 @@
-# flow-opt-hydrofoil
+# hydrofoil-opt
 
 `flow-opt-hydrofoil` is the hydrofoil case plugin for
 [`hydroflow-opt`](../hydroflow-opt). It has no Pyro5 dependency and does not implement
@@ -16,7 +16,7 @@ its worker executes a candidate.
 Check the currently active shell before running a real case:
 
 ```bash
-flow-opt-hydrofoil check-runtime
+hydrofoil-opt check-runtime
 ```
 
 This prints a compact checklist for the dtOO Python bindings, OpenFOAM tools,
