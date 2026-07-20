@@ -1,6 +1,8 @@
 # hydrofoil-opt
 
-`flow-opt-hydrofoil` is the hydrofoil case plugin for
+[![Build](https://github.com/ihs-ustutt/hydroFoil_bwRSE4HPC/actions/workflows/ci.yml/badge.svg)](https://github.com/ihs-ustutt/hydroFoil_bwRSE4HPC/actions)
+
+`hydrofoil-opt` is the hydrofoil case plugin for
 [`hydroflow-opt`](../hydroflow-opt). It has no Pyro5 dependency and does not implement
 its own scheduler or worker pool. `hydroflow-opt` starts an isolated worker for
 each candidate and owns the global resource budget.
