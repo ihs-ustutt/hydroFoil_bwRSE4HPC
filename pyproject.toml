@@ -29,6 +29,22 @@ dependencies = [
   "scikit-learn"
   ]
 
+[project.optional-dependencies]
+dev = [
+    "mypy",
+    "pytest",
+    "pytest-cov",
+    "ruff",
+]
+lint = [
+    "mypy",
+    "ruff",
+]
+tests = [
+    "pytest",
+    "pytest-cov",
+]
+
 [project.entry-points."hydroflow_opt.cases"]
 hydrofoil = "hydrofoil_opt.case:HydrofoilCase"
 
