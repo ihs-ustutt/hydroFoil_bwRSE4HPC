@@ -26,8 +26,11 @@ def evaluate(request: dict[str, Any]) -> tuple[float, dict[str, Any]]:
     scratch_dir = Path(request["context"]["scratch_dir"])
     scratch_dir.mkdir(parents=True, exist_ok=True)
     resources = request["context"]["resources"]
+    mpi_ranks = int(resources["mpi_ranks"])
+    if mpi_ranks < 1:
+        raise ValueError("mpi_ranks must be at least one")
     os.environ["TMPDIR"] = str(scratch_dir)
-    os.environ["FLOW_OPT_MPI_RANKS"] = str(resources["mpi_ranks"])
+    os.environ["FLOW_OPT_MPI_RANKS"] = str(mpi_ranks)
     module = _load_implementation()
     parameters = request["candidate"]["parameters"]
     candidate_id = request["candidate"]["id"]
@@ -38,12 +41,27 @@ def evaluate(request: dict[str, Any]) -> tuple[float, dict[str, Any]]:
             float(parameters["t_mid"]),
         ],
         candidate_id,
+        solver_launcher=_solver_launcher(request, mpi_ranks),
     )
     return float(fitness), {
         "state": state,
         "fitness_components": extra,
         "history": history,
     }
+
+
+def _solver_launcher(request: dict[str, Any], mpi_ranks: int) -> list[str]:
+    """Return the backend-provided command prefix for ``simpleFoam``."""
+
+    execution = request["context"].get("execution")
+    if execution is None:
+        return ["mpiexec", "-n", str(mpi_ranks)] if mpi_ranks > 1 else []
+    launcher = execution.get("mpi_launcher")
+    if not isinstance(launcher, list) or not all(
+        isinstance(item, str) and item for item in launcher
+    ):
+        raise TypeError("context.execution.mpi_launcher must be a string list")
+    return list(launcher)
 
 
 def _load_implementation() -> Any:

@@ -36,3 +36,8 @@ class HydrofoilCase:
             str(request_path),
             str(result_path),
         ]
+
+    def worker_placement(self) -> str:
+        """Let the worker control scheduler-managed OpenFOAM stages."""
+
+        return "controller"

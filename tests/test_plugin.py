@@ -1,5 +1,8 @@
 import json
 
+import pytest
+
+import hydrofoil_opt.runtime as runtime
 import hydrofoil_opt.runtime_check as runtime_check
 from hydrofoil_opt.case import HydrofoilCase
 from hydrofoil_opt.cli import main as cli_main
@@ -8,9 +11,101 @@ from hydrofoil_opt.worker import main
 
 
 def test_case_exposes_the_hydrofoil_parameter_space():
-    space = HydrofoilCase().parameter_space({})
+    case = HydrofoilCase()
+    space = case.parameter_space({})
     assert space.names == ("alpha_1", "alpha_2", "t_mid")
     assert space.lower_bounds == (150.0, 155.0, 0.01)
+    assert case.worker_placement() == "controller"
+
+
+def test_runtime_passes_backend_solver_launcher_to_legacy(
+    monkeypatch, tmp_path
+):
+    calls = []
+
+    class FakeImplementation:
+        @staticmethod
+        def runHydFoil(vector, state, *, solver_launcher):
+            calls.append((vector, state, solver_launcher))
+            return 1.25, {"dHMean": 1.0}, state, {"started": True}
+
+    monkeypatch.setattr(
+        runtime, "_load_implementation", lambda: FakeImplementation()
+    )
+    request = {
+        "candidate": {
+            "id": "candidate-1",
+            "parameters": {
+                "alpha_1": 160.0,
+                "alpha_2": 165.0,
+                "t_mid": 0.05,
+            },
+        },
+        "context": {
+            "scratch_dir": str(tmp_path / "scratch"),
+            "resources": {"mpi_ranks": 2},
+            "execution": {
+                "backend": "slurm",
+                "mpi_launcher": [
+                    "srun",
+                    "--exclusive",
+                    "--ntasks=2",
+                ],
+            },
+        },
+    }
+
+    objective, metadata = runtime.evaluate(request)
+
+    assert objective == 1.25
+    assert metadata["state"] == "candidate-1"
+    assert calls == [
+        (
+            [160.0, 165.0, 0.05],
+            "candidate-1",
+            ["srun", "--exclusive", "--ntasks=2"],
+        )
+    ]
+
+
+def test_runtime_defaults_old_requests_to_local_mpiexec(tmp_path):
+    request = {
+        "context": {
+            "scratch_dir": str(tmp_path),
+            "resources": {"mpi_ranks": 2},
+        }
+    }
+
+    assert runtime._solver_launcher(request, 2) == ["mpiexec", "-n", "2"]
+
+
+def test_runtime_propagates_legacy_evaluation_failure(monkeypatch, tmp_path):
+    class FailedImplementation:
+        @staticmethod
+        def runHydFoil(vector, state, *, solver_launcher):
+            del vector, state, solver_launcher
+            raise RuntimeError("simpleFoam failed")
+
+    monkeypatch.setattr(
+        runtime, "_load_implementation", lambda: FailedImplementation()
+    )
+    request = {
+        "candidate": {
+            "id": "candidate-1",
+            "parameters": {
+                "alpha_1": 160.0,
+                "alpha_2": 165.0,
+                "t_mid": 0.05,
+            },
+        },
+        "context": {
+            "scratch_dir": str(tmp_path / "scratch"),
+            "resources": {"mpi_ranks": 1},
+        },
+    }
+
+    with pytest.raises(RuntimeError, match="simpleFoam failed"):
+        runtime.evaluate(request)
 
 
 def test_worker_returns_a_structured_failure_without_cfd_runtime(tmp_path):

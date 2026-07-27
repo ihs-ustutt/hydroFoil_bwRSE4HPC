@@ -193,6 +193,18 @@ The script builds and installs the required libraries into
 `DTOO_EXTERNLIBS`. It can be rerun after a failed or interrupted build; already
 completed dependencies are skipped.
 
+If the partial build was made with an older version of `install.sh` that did
+not record completed dependencies, identify the dependency that failed and
+resume from it once:
+
+```bash
+# Example when pythonocc-core was the first dependency that did not complete:
+bash install.sh --resume-from pythonocc-core -n "${BUILD_JOBS}"
+```
+
+Use `bash install.sh --force -n "${BUILD_JOBS}"` only when all dependencies
+should be rebuilt.
+
 If compilation is killed because the system runs out of memory, reduce
 `BUILD_JOBS` and rerun the command. The individual dependency logs are stored
 under `dtOO-ThirdParty/ThirdParty/`.
@@ -274,6 +286,36 @@ hydroflow-opt optimize examples/hydrofoil_optimization.toml
 The configured output and scratch directories contain a separate request,
 result, standard-output log, standard-error log, and scratch directory for
 each candidate.
+
+### Slurm smoke test
+
+Use the staged Slurm example to run the historical candidate with two
+OpenFOAM ranks:
+
+```bash
+hydroflow-opt check examples/hydrofoil_candidate_slurm.toml
+```
+
+Submit it from an allocation that provides two physical cores:
+
+```bash
+#!/bin/bash
+#SBATCH --nodes=1
+#SBATCH --ntasks=2
+#SBATCH --cpus-per-task=1
+#SBATCH --hint=nomultithread
+
+source /path/to/the/runtime-environment.sh
+cd /path/to/hydroFoil_bwRSE4HPC
+
+srun --mpi=list
+hydrofoil-opt check-runtime
+hydroflow-opt run examples/hydrofoil_candidate_slurm.toml
+```
+
+The Python worker runs once. Its two `simpleFoam` stages are launched as
+exclusive two-task Slurm job steps. Do not wrap `hydroflow-opt` itself in
+`srun`; the backend creates the solver steps from inside the allocation.
 
 ## Troubleshooting
 

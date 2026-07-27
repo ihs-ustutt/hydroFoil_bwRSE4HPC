@@ -58,5 +58,37 @@ threads_per_rank = 1
 ```
 
 The local worker uses `mpiexec -n <mpi_ranks>` and never passes
-`--oversubscribe`. A future Slurm backend will launch this same worker with
-`srun` and owns placement inside the job allocation.
+`--oversubscribe`.
+
+For Slurm execution, add:
+
+```toml
+[execution]
+backend = "slurm"
+```
+
+and run `hydroflow-opt` inside an existing `sbatch` or `salloc` allocation.
+The allocation may span nodes, but each candidate must fit on one node.
+The hydrofoil worker is a controller: geometry generation and meshing run
+once, while each OpenFOAM solver stage is launched directly as:
+
+```text
+srun --exclusive --nodes=1 --ntasks=<mpi_ranks> \
+  --cpus-per-task=<threads_per_rank> --cpu-bind=cores --mpi=pmix \
+  simpleFoam -parallel
+```
+
+There is no nested `mpiexec` in Slurm mode. Local execution continues to use
+`mpiexec -n <mpi_ranks>`. For four islands with two one-thread MPI ranks per
+candidate, request eight Slurm tasks with one CPU each:
+
+```bash
+#SBATCH --nodes=1
+#SBATCH --ntasks=8
+#SBATCH --cpus-per-task=1
+#SBATCH --hint=nomultithread
+```
+
+Before a production run, verify that the cluster supports direct Open MPI
+launching with `srun --mpi=list`; the available plugin list must include
+`pmix`.

@@ -99,13 +99,15 @@ class hydFoil:
     alpha_1 = 100.0,
     alpha_2 = 130,
     t_mid = 0.1,
-    state = None
+    state = None,
+    solver_launcher = None
   ):
     ### change working directory to local ssd ###
     self.wd = os.environ["TMPDIR"]
     os.chdir(self.wd)
     """str: State label."""
     self.state_ = state
+    self.solver_launcher_ = list(solver_launcher or [])
     dtOO.logMe.initLog('build.'+self.state_+'.log')
     self.history_ = {}
     working_dir =f'{{\"name\": \"workingDirectory\", \"value\": \"{self.wd}\" }}'
@@ -1056,21 +1058,19 @@ class hydFoil:
         fc.turbulence_properties["RAS"]["turbulence"] = False
         fc.control_dict["endTime"] = 500
         fc.control_dict["writeInterval"] = 500
+        solver_cmd = [*self.solver_launcher_, "simpleFoam"]
         if cpus_per_task > 1:
-            fc.run(cmd=["mpiexec", "-n", f"{cpus_per_task}","simpleFoam", "-parallel"])
-        else:
-            fc.run()
+            solver_cmd.append("-parallel")
+        fc.run(cmd=solver_cmd)
         fc.turbulence_properties["RAS"]["turbulence"] = True
         fc.control_dict["endTime"] = 1000
         fc.control_dict["writeInterval"] = 1000
-        if cpus_per_task > 1:
-            fc.run(cmd=["mpiexec", "-n", f"{cpus_per_task}","simpleFoam", "-parallel"])
-        else:
-            fc.run()
+        fc.run(cmd=solver_cmd)
         if cpus_per_task > 1:
             fc.reconstruct_par()
     except:
         logger.exception(f"Failed: {self.state_}.")
+        raise
 
 
 
@@ -1261,10 +1261,16 @@ class hydFoil:
       return self.history_
 
 
-def runHydFoil(x, state):
+def runHydFoil(x, state, solver_launcher=None):
     history = {}
     try:
-        hf = hydFoil( alpha_1=x[0], alpha_2=x[1], t_mid=x[2], state = state )
+        hf = hydFoil(
+            alpha_1=x[0],
+            alpha_2=x[1],
+            t_mid=x[2],
+            state=state,
+            solver_launcher=solver_launcher,
+        )
         state = hf.state_
         hf.Geometry()
         hf.GeometryMesh()
@@ -1280,8 +1286,7 @@ def runHydFoil(x, state):
     except Exception as e:
         logger.warning("Proxy: Exception in runHydFoil: \n")
         logger.exception(e)
-        fit = hydFoil.FailedFitness()
-        fit_extra = {'dHMean': 1e6, 'FMean': 1e6, 'eta': 1e6}
+        raise
     history = hf.get_history() if "hf" in locals() else history
     if type(fit) == np.ndarray:
         fit = float(fit[0]) #serializable
