@@ -92,3 +92,36 @@ candidate, request eight Slurm tasks with one CPU each:
 Before a production run, verify that the cluster supports direct Open MPI
 launching with `srun --mpi=list`; the available plugin list must include
 `pmix`.
+
+## Baseline-compatible optimization
+
+The original submission requested 64 islands, used populations of eight
+pre-evaluated designs from `start_db.json`, applied one DE generation at a
+time with a fully connected topology and evicted delivered migrants, and
+stopped after approximately 35,000 new simulations.
+
+Start with the four-island reproduction smoke test:
+
+```bash
+hydroflow-opt check examples/hydrofoil_baseline_smoke_slurm.toml
+hydroflow-opt optimize examples/hydrofoil_baseline_smoke_slurm.toml
+```
+
+It initializes four populations from the historical database without running
+32 initialization simulations, then evaluates one generation: 32 new CFD
+cases, with at most four cases running concurrently.
+
+The full configuration is
+`examples/hydrofoil_baseline_reproduction_slurm.toml`. It uses 64 islands,
+eight individuals per island, 69 generations, and 128 CPUs. This produces
+35,328 new evaluations, the nearest whole-generation equivalent of the
+baseline's 35,000-evaluation asynchronous stopping condition.
+
+The new run is reproducible but cannot recreate an old random trajectory:
+the original did not record a seed and accidentally excluded database entry
+100. The new configuration records a seed and samples all valid records.
+
+For a large multi-node run, note that the Python island controllers originate
+on the batch node; their `simpleFoam` stages are distributed by Slurm. Validate
+controller-side meshing and memory load at smaller scale before attempting all
+64 islands.
