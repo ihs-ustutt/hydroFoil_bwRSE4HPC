@@ -11,7 +11,6 @@ from typing import Any
 
 def main(argv: list[str] | None = None) -> int:
     """Read one flow-opt request and write one structured result."""
-
     args = argv if argv is not None else sys.argv[1:]
     if len(args) != 2:
         raise SystemExit("usage: hydrofoil-opt-worker REQUEST RESULT")
@@ -24,7 +23,7 @@ def main(argv: list[str] | None = None) -> int:
         objective, metadata = evaluate(request)
         result = _success(request, objective, metadata, started)
     # The worker process is the isolation boundary for CFD runtime failures.
-    except Exception as exc:  # noqa: BLE001
+    except Exception as exc:
         result = _failure(request, str(exc), started)
     result_path.write_text(json.dumps(result), encoding="utf-8")
     return 0

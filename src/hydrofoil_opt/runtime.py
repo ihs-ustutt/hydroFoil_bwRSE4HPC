@@ -22,7 +22,6 @@ def evaluate(request: dict[str, Any]) -> tuple[float, dict[str, Any]]:
     implementation is being split further.  It contains no Pyro dependency;
     the process boundary and all scheduling now belong to hydroflow-opt .
     """
-
     scratch_dir = Path(request["context"]["scratch_dir"])
     scratch_dir.mkdir(parents=True, exist_ok=True)
     resources = request["context"]["resources"]
@@ -52,7 +51,6 @@ def evaluate(request: dict[str, Any]) -> tuple[float, dict[str, Any]]:
 
 def _solver_launcher(request: dict[str, Any], mpi_ranks: int) -> list[str]:
     """Return the backend-provided command prefix for ``simpleFoam``."""
-
     execution = request["context"].get("execution")
     if execution is None:
         return ["mpiexec", "-n", str(mpi_ranks)] if mpi_ranks > 1 else []

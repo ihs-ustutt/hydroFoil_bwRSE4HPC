@@ -14,7 +14,6 @@ class HydrofoilCase:
 
     def parameter_space(self, options: dict[str, Any]) -> ParameterSpace:
         """Return the physical optimization bounds for the hydrofoil."""
-
         del options
         return ParameterSpace(
             names=("alpha_1", "alpha_2", "t_mid"),
@@ -28,7 +27,6 @@ class HydrofoilCase:
         result_path: Path,
     ) -> list[str]:
         """Run each evaluation in a new Python interpreter."""
-
         return [
             sys.executable,
             "-m",
@@ -39,5 +37,4 @@ class HydrofoilCase:
 
     def worker_placement(self) -> str:
         """Let the worker control scheduler-managed OpenFOAM stages."""
-
         return "controller"

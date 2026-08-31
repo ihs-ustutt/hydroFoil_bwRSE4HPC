@@ -20,13 +20,12 @@ class CheckResult:
 def run_checks() -> list[CheckResult]:
     """Run all hydrofoil runtime checks.
 
-    Returns
+    Returns:
     -------
     list[CheckResult]
         Individual check results. Required failed checks should make the CLI
         return a non-zero exit status.
     """
-
     return [
         _check_import("dtOOPythonSWIG"),
         _check_import("pyDtOO"),
@@ -41,7 +40,6 @@ def run_checks() -> list[CheckResult]:
 
 def failed_required_count(results: list[CheckResult]) -> int:
     """Count required checks that failed."""
-
     return sum(
         1 for result in results if result.required and not result.passed
     )
@@ -61,12 +59,11 @@ def format_report(
     environ
         Environment mapping used to report relevant variables.
 
-    Returns
+    Returns:
     -------
     str
         Multi-line report suitable for printing to stdout.
     """
-
     lines = ["hydrofoil-opt runtime check", ""]
     for result in results:
         status = "OK  " if result.passed else "FAIL"
@@ -101,7 +98,7 @@ def format_report(
 def _check_import(module_name: str) -> CheckResult:
     try:
         import_module(module_name)
-    except Exception as exc:  # noqa: BLE001 - diagnostic boundary.
+    except Exception as exc:
         return CheckResult(
             name=f"import {module_name}",
             passed=False,
@@ -124,7 +121,7 @@ def _check_executable(name: str) -> CheckResult:
 def _check_implementation() -> CheckResult:
     try:
         path = _implementation_path()
-    except Exception as exc:  # noqa: BLE001 - diagnostic boundary.
+    except Exception as exc:
         return CheckResult(
             name="hydroFoil.py",
             passed=False,
