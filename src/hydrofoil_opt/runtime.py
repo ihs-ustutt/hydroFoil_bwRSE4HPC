@@ -1,65 +1,104 @@
-"""Runtime bridge to the hydrofoil CFD implementation.
-
-The external dtOO, foamlib, and OpenFOAM runtime is deliberately imported only
-when a worker is actually evaluating a candidate.  This keeps the plugin
-installable and unit-testable on a development laptop.
-"""
-
-from __future__ import annotations
+"""File-based stages bridging hydroflow-opt to the hydrofoil CFD code."""
 
 import importlib.util
+import json
+import logging
 import os
+import shutil
 import sys
+import time
 from importlib.resources import files
 from pathlib import Path
 from typing import Any
 
+from hydroflow_opt.models import EvaluationResult
+from hydroflow_opt.results import write_result
 
-def evaluate(request: dict[str, Any]) -> tuple[float, dict[str, Any]]:
-    """Evaluate one candidate with the established hydrofoil physics code.
+from hydrofoil_opt.case import case_directory
 
-    The legacy implementation is loaded only here while its geometry and CFD
-    implementation is being split further.  It contains no Pyro dependency;
-    the process boundary and all scheduling now belong to hydroflow-opt .
-    """
-    scratch_dir = Path(request["context"]["scratch_dir"])
-    scratch_dir.mkdir(parents=True, exist_ok=True)
-    resources = request["context"]["resources"]
-    mpi_ranks = int(resources["mpi_ranks"])
-    if mpi_ranks < 1:
-        raise ValueError("mpi_ranks must be at least one")
-    os.environ["TMPDIR"] = str(scratch_dir)
-    os.environ["FLOW_OPT_MPI_RANKS"] = str(mpi_ranks)
+
+def prepare(request_path: Path) -> None:
+    """Build and decompose a case, ready for the laminar solve."""
+    from foamlib import FoamCase
+
+    request = json.loads(request_path.read_text(encoding="utf-8"))
+    candidate = request["candidate"]
+    scratch = Path(request["context"]["scratch_dir"])
+    os.environ["TMPDIR"] = str(scratch)
     module = _load_implementation()
-    parameters = request["candidate"]["parameters"]
-    candidate_id = request["candidate"]["id"]
-    fitness, extra, state, history = module.runHydFoil(
-        [
-            float(parameters["alpha_1"]),
-            float(parameters["alpha_2"]),
-            float(parameters["t_mid"]),
-        ],
-        candidate_id,
-        solver_launcher=_solver_launcher(request, mpi_ranks),
+    foil = module.hydFoil(**candidate["parameters"], state=candidate["id"])
+    foil.Geometry()
+    foil.GeometryMesh()
+    foil.Mesh()
+    directory = case_directory(scratch, candidate["id"])
+    if not directory.is_dir():
+        raise RuntimeError(
+            f"geometry did not create expected case: {directory}"
+        )
+    case = FoamCase(directory)
+    ranks = request["context"]["resources"]["mpi_ranks"]
+    if ranks > 1:
+        case.decompose_par_dict["numberOfSubdomains"] = ranks
+        case.decompose_par_dict["method"] = "scotch"
+        case.decompose_par()
+    case.turbulence_properties["RAS"]["turbulence"] = False
+    case.control_dict["endTime"] = 500
+    case.control_dict["writeInterval"] = 500
+    (scratch / "history.json").write_text(
+        json.dumps({"Start Time": time.time()}), encoding="utf-8"
     )
-    return float(fitness), {
-        "state": state,
-        "fitness_components": extra,
-        "history": history,
-    }
 
 
-def _solver_launcher(request: dict[str, Any], mpi_ranks: int) -> list[str]:
-    """Return the backend-provided command prefix for ``simpleFoam``."""
-    execution = request["context"].get("execution")
-    if execution is None:
-        return ["mpiexec", "-n", str(mpi_ranks)] if mpi_ranks > 1 else []
-    launcher = execution.get("mpi_launcher")
-    if not isinstance(launcher, list) or not all(
-        isinstance(item, str) and item for item in launcher
-    ):
-        raise TypeError("context.execution.mpi_launcher must be a string list")
-    return list(launcher)
+def configure_turbulent(request_path: Path) -> None:
+    """Continue from the laminar solution with turbulence enabled."""
+    from foamlib import FoamCase
+
+    request = json.loads(request_path.read_text(encoding="utf-8"))
+    directory = case_directory(
+        Path(request["context"]["scratch_dir"]), request["candidate"]["id"]
+    )
+    case = FoamCase(directory)
+    case.turbulence_properties["RAS"]["turbulence"] = True
+    case.control_dict["endTime"] = 1000
+    case.control_dict["writeInterval"] = 1000
+
+
+def finalize(request_path: Path, result_path: Path) -> None:
+    """Reconstruct, evaluate, persist the result, then clean the case."""
+    import numpy as np
+    from foamlib import FoamCase
+
+    request = json.loads(request_path.read_text(encoding="utf-8"))
+    candidate_id = request["candidate"]["id"]
+    scratch = Path(request["context"]["scratch_dir"])
+    directory = case_directory(scratch, candidate_id)
+    if request["context"]["resources"]["mpi_ranks"] > 1:
+        FoamCase(directory).reconstruct_par()
+    fitness, head, force, efficiency = _load_implementation().evaluate_case(
+        str(directory), candidate_id
+    )
+    result = EvaluationResult.success(
+        candidate_id,
+        float(np.asarray(fitness).item()),
+        metadata={
+            "state": candidate_id,
+            "fitness_components": {
+                "dHMean": head.tolist(),
+                "FMean": float(force),
+                "eta": efficiency.tolist(),
+            },
+            "history": json.loads(
+                (scratch / "history.json").read_text(encoding="utf-8")
+            ),
+        },
+    )
+    write_result(result_path, result)
+    try:
+        shutil.rmtree(directory)
+    except OSError:
+        logging.getLogger(__name__).warning(
+            "Could not clean completed case %s", directory, exc_info=True
+        )
 
 
 def _load_implementation() -> Any:

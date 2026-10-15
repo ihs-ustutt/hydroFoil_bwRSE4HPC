@@ -23,7 +23,7 @@ classifiers = [
 ]
 dependencies = [
   "foamlib",
-  "hydroflow-opt",
+  "hydroflow-opt>=0.2.0",
   "numpy",
   "oslo.concurrency",
   "scikit-learn"

@@ -29,11 +29,16 @@ def run_checks() -> list[CheckResult]:
     return [
         _check_import("dtOOPythonSWIG"),
         _check_import("pyDtOO"),
+        _check_import("foamlib"),
         _check_import("dtOOPythonApp.builder"),
         _check_import("hydroflow_opt"),
         _check_import("hydrofoil_opt"),
         _check_executable("simpleFoam"),
-        _check_executable("mpiexec"),
+        _check_executable("decomposePar"),
+        _check_executable("reconstructPar"),
+        _check_executable("patchToCsv"),
+        _check_executable("mpiexec", required=False),
+        _check_executable("srun", required=False),
         _check_implementation(),
     ]
 
@@ -66,7 +71,9 @@ def format_report(
     """
     lines = ["hydrofoil-opt runtime check", ""]
     for result in results:
-        status = "OK  " if result.passed else "FAIL"
+        status = (
+            "OK  " if result.passed else "FAIL" if result.required else "INFO"
+        )
         detail = f": {result.detail}" if result.detail else ""
         lines.append(f"{status} {result.name}{detail}")
 
@@ -77,11 +84,6 @@ def format_report(
             _format_env("TMPDIR", environ, default="<not set>"),
             _format_env("PYTHONPATH", environ, default="<not set>"),
             _format_env("LD_LIBRARY_PATH", environ, default="<not set>"),
-            _format_env(
-                "FLOW_OPT_MPI_RANKS",
-                environ,
-                default="<not set; hydroflow-opt supplies this>",
-            ),
             "",
         ]
     )
@@ -107,15 +109,18 @@ def _check_import(module_name: str) -> CheckResult:
     return CheckResult(name=f"import {module_name}", passed=True)
 
 
-def _check_executable(name: str) -> CheckResult:
+def _check_executable(name: str, *, required: bool = True) -> CheckResult:
     path = which(name)
     if path is None:
         return CheckResult(
             name=f"executable {name}",
             passed=False,
             detail="not found on PATH",
+            required=required,
         )
-    return CheckResult(name=f"executable {name}", passed=True, detail=path)
+    return CheckResult(
+        name=f"executable {name}", passed=True, detail=path, required=required
+    )
 
 
 def _check_implementation() -> CheckResult:
