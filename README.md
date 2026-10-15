@@ -65,6 +65,10 @@ For Slurm execution, add:
 ```toml
 [execution]
 backend = "slurm"
+
+[resources]
+# Trial budget; validate against your workload.
+memory_mib_per_evaluation = 1536
 ```
 
 and run `hydroflow-opt` inside an existing `sbatch` or `salloc` allocation.
@@ -74,7 +78,7 @@ once, while each OpenFOAM solver stage is launched directly as:
 
 ```text
 srun --exclusive --nodes=1 --ntasks=<mpi_ranks> \
-  --cpus-per-task=<threads_per_rank> --cpu-bind=cores --mpi=pmix \
+  --cpus-per-task=<threads_per_rank> --cpu-bind=cores --mem=1536M --mpi=pmix \
   simpleFoam -parallel
 ```
 
@@ -85,6 +89,7 @@ candidate, request eight Slurm tasks with one CPU each:
 ```bash
 #SBATCH --nodes=1
 #SBATCH --ntasks=8
+#SBATCH --mem=8G
 #SBATCH --cpus-per-task=1
 #SBATCH --hint=nomultithread
 ```
@@ -125,3 +130,8 @@ For a large multi-node run, note that the Python island controllers originate
 on the batch node; their `simpleFoam` stages are distributed by Slurm. Validate
 controller-side meshing and memory load at smaller scale before attempting all
 64 islands.
+
+The memory budget above applies to every stage across all its ranks. Batch
+`--mem` remains per node; leave headroom beyond the concurrent stage budgets.
+The example 1536 MiB budget must be validated for your meshes. Older runs can
+resume with `hydroflow-opt resume RUN_DIR --memory-mib-per-evaluation 1536`.

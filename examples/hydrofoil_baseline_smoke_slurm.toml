@@ -9,6 +9,8 @@ name = "hydrofoil"
 backend = "slurm"
 
 [resources]
+# Trial memory budget per stage; validate against your workload.
+memory_mib_per_evaluation = 1536
 available_cpus = 8
 concurrent_evaluations = 4
 mpi_ranks = 2
