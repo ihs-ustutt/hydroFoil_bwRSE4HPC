@@ -1,0 +1,82 @@
+[build-system]
+requires = ["hatchling>=1.25"]
+build-backend = "hatchling.build"
+
+[project]
+name = "hydrofoil-opt"
+version = "0.1.0"
+description = "Hydrofoil case plugin for hydroflow-opt"
+readme = "README.md"
+authors = [
+  {name = "Simon Eyeselein", email = "simon.eyselein@ihs.uni-stuttgart.de"},
+  {name = "Thomas Isensee", email = "thomas.isensee@iwr.uni-heidelberg.de"},
+]
+requires-python = ">=3.11,<3.14"
+license-files = ["LICEN[CS]E*"]
+license = "MIT"
+classifiers = [
+    "Intended Audience :: Science/Research",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+]
+dependencies = [
+  "foamlib",
+  "hydroflow-opt>=0.2.0",
+  "numpy",
+  "oslo.concurrency",
+  "scikit-learn"
+  ]
+
+[project.optional-dependencies]
+dev = [
+    "mypy",
+    "pytest",
+    "pytest-cov",
+    "ruff",
+]
+lint = [
+    "mypy",
+    "ruff",
+]
+tests = [
+    "pytest",
+    "pytest-cov",
+]
+
+[project.entry-points."hydroflow_opt.cases"]
+hydrofoil = "hydrofoil_opt.case:HydrofoilCase"
+
+[project.scripts]
+hydrofoil-opt = "hydrofoil_opt.cli:main"
+hydrofoil-opt-worker = "hydrofoil_opt.worker:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/hydrofoil_opt"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 79
+target-version = "py311"
+exclude = ["src/hydrofoil_opt/_legacy"]
+
+[tool.ruff.lint]
+select = [
+    "B",   # flake8-bugbear
+    "D",   # pydocstyle
+    "E",   # pycodestyle error rules
+    "F",   # Pyflakes
+    "I",   # isort
+    "SIM", # flake8-simplify
+    "UP",  # pyupgrade
+    "RUF", # Ruff-specific rules
+]
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = ["D"]

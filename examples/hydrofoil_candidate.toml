@@ -1,0 +1,20 @@
+[run]
+directory = "runs/hydrofoil_candidate"
+scratch_directory = "runs/hydrofoil_candidate/scratch"
+
+[case]
+name = "hydrofoil"
+
+[resources]
+available_cpus = 1
+concurrent_evaluations = 1
+mpi_ranks = 1
+threads_per_rank = 1
+
+[[candidate]]
+id = "historical-55"
+
+[candidate.parameters]
+alpha_1 = 150.39468383789062
+alpha_2 = 166.94589233398438
+t_mid = 0.03342829644680023
