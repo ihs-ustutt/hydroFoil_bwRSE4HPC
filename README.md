@@ -55,7 +55,7 @@ backend = "slurm"
 memory_mib_per_evaluation = 1536
 ```
 
-and run `hydroflow-opt` inside an existing `sbatch` or `salloc` allocation. The allocation may span nodes, but each candidate must fit on one node. Preparation, laminar solve, turbulence configuration, turbulent solve, and finalization each run as separate Slurm job steps. Python stages use one task; each parallel OpenFOAM solver stage is launched directly as:
+and run `hydroflow-opt` inside an existing `sbatch` or `salloc` allocation. The allocation may span nodes, but each candidate must fit on one node. Preparation, laminar solve, turbulence configuration, turbulent solve, and finalization each run as separate Slurm job steps. Python stages use one task. Each parallel OpenFOAM solver stage is launched directly as:
 
 ```text
 srun --exclusive --nodes=1 --ntasks=<mpi_ranks> \
@@ -73,4 +73,12 @@ There is no nested `mpiexec` in Slurm mode. Local execution continues to use `mp
 #SBATCH --hint=nomultithread
 ```
 
-Before a production run, verify that the cluster supports direct Open MPI launching with `srun --mpi=list`; the available plugin list must include `pmix`.
+Before a production run, verify that the cluster supports direct Open MPI launching with `srun --mpi=list`. The available plugin list must include `pmix`.
+
+## Multi-node runs using local SSDs
+
+Use [the node-local example](examples/hydrofoil_optimization_node_local.toml) with a hydroflow-opt version supporting `run.scratch_mode = "node_local"`. The framework pins each candidate's five stages to one node and places its working files beneath that node's `$TMPDIR`. Multiple candidates can share a node. Each solve still fits on one node. Keep `run.directory` on shared storage.
+
+For the example's illustrative resources, request two nodes, four CPUs per node, and 8 GiB per node (`--nodes=2 --ntasks-per-node=4 --cpus-per-task=1 --mem=8G`). Activate the CFD environment and run `hydroflow-opt optimize examples/hydrofoil_optimization_node_local.toml` directly in the batch script. Adjust ranks, memory, concurrency, and wall time for the actual workload. Use a fresh run directory for each optimization.
+
+Successful cases retain the existing cleanup behavior. Failed evaluations export bounded logs and configuration to shared storage. Meshes and fields remain local and disappear when the job ends. Optimization resume reuses saved objectives and starts interrupted CFD evaluations from preparation.

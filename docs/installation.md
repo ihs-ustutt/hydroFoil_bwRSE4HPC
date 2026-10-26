@@ -3,10 +3,10 @@
 Running a hydrofoil evaluation requires more than the Python packages
 `hydroflow-opt` and `hydrofoil-opt`. The complete runtime consists of:
 
-- Python 3.11, 3.12, or 3.13 and the Python dependencies declared by the two packages;
-- OpenFOAM and an MPI implementation;
-- [foamFine](https://github.com/ihs-ustutt/foamFine);
-- [dtOO](https://github.com/ihs-ustutt/dtOO), its Python bindings, and the libraries built by [dtOO-ThirdParty](https://github.com/ihs-ustutt/dtOO-ThirdParty).
+- Python 3.11, 3.12, or 3.13 and the Python dependencies declared by the two packages
+- OpenFOAM and an MPI implementation
+- [foamFine](https://github.com/ihs-ustutt/foamFine)
+- [dtOO](https://github.com/ihs-ustutt/dtOO), its Python bindings, and the libraries built by [dtOO-ThirdParty](https://github.com/ihs-ustutt/dtOO-ThirdParty)
 
 The exact compiler, package-manager, OpenFOAM, and scheduler setup depends on the target system. This guide therefore uses configurable paths and does not assume an environment-module system or a particular scheduler. It is based on [dtOO's build recipe](https://github.com/ihs-ustutt/dtOO/issues/67).
 
@@ -37,13 +37,13 @@ Change these values to suit the local installation.
 
 Install a C and C++ compiler, a Fortran compiler, Git, CMake, Make, and the development files needed by dtOO and its third-party libraries. These include:
 
-- BLAS, LAPACK, Eigen, and GFortran;
-- Boost filesystem, program-options, regex, thread, and timer;
-- FreeType, Tcl, and Tk;
-- GMP, GSL, and muParser;
-- Qt 5 Core and XML;
-- RapidJSON and nlohmann-json;
-- SWIG and Python development headers.
+- BLAS, LAPACK, Eigen, and GFortran
+- Boost filesystem, program-options, regex, thread, and timer
+- FreeType, Tcl, and Tk
+- GMP, GSL, and muParser
+- Qt 5 Core and XML
+- RapidJSON and nlohmann-json
+- SWIG and Python development headers
 
 Package names differ between Linux distributions. The `dtOO-ThirdParty/Dockerfile.ubuntu` and `Dockerfile.opensuse` files provide concrete package lists for those distributions.
 
@@ -168,7 +168,7 @@ cd "${DTOO_SOURCE}/dtOO-ThirdParty"
 bash install.sh -n "${BUILD_JOBS}"
 ```
 
-The script builds and installs the required libraries into `DTOO_EXTERNLIBS`. It can be rerun after a failed or interrupted build; already completed dependencies are skipped.
+The script builds and installs the required libraries into `DTOO_EXTERNLIBS`. It can be rerun after a failed or interrupted build. Already completed dependencies are skipped.
 
 If the partial build was made with an older version of `install.sh` that did not record completed dependencies, identify the dependency that failed and resume from it once:
 
@@ -278,7 +278,7 @@ hydrofoil-opt check-runtime
 hydroflow-opt run examples/hydrofoil_candidate_slurm.toml
 ```
 
-The backend launches five job steps: serial preparation, two parallel `simpleFoam` solves separated by serial turbulence configuration, and serial finalization. Do not wrap `hydroflow-opt` itself in `srun`. For multi-node allocations, use shared scratch storage; successive stages may change nodes. Install hydroflow-opt 0.2.x together with this plugin. `mpiexec` is needed for local parallel solves, `srun` for Slurm; runtime checks report both as optional. See README for stage timeouts and single-candidate replay.
+The backend launches five job steps: serial preparation, two parallel `simpleFoam` solves separated by serial turbulence configuration, and serial finalization. Do not wrap `hydroflow-opt` itself in `srun`. For multi-node allocations, use shared scratch storage in the default mode; successive stages may change nodes. Alternatively, select `run.scratch_mode = "node_local"` to pin candidates and use each node's `$TMPDIR`. See the node-local example in the README. `mpiexec` is needed for local parallel solves, `srun` for Slurm. Runtime checks report both as optional. See README for stage timeouts and single-candidate replay.
 
 ## Troubleshooting
 
