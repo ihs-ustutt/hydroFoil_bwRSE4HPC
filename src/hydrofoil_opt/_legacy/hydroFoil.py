@@ -706,11 +706,11 @@ class hydFoil:
     # outer region; both surfaces are also coupling surfaces
     #
     gm.getDtGmshRegionByPhysical("xyz_channel").addFace(
-     gm.getDtGmshFaceByPhysical("xyz_meshBlock_0->WEST"), 1
+     gm.getDtGmshFaceByPhysical(blocks[0].getLabel()+"->WEST"), 1
     )
     gm.getDtGmshRegionByPhysical("xyz_channel").addFace(
       gm.getDtGmshFaceByPhysical(
-        "xyz_meshBlock_"+str(np.size(mbIndices)-1)+"->EAST"
+        blocks[-1].getLabel()+"->EAST"
       ),
       1
     )
